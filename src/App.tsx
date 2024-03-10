@@ -58,7 +58,7 @@ const model: IModel = {
 const Input: FC<IInputProps> = ({ name, value, handleChange, paramId }) => {
   const idAndForString = paramId.toString();
   return (
-    <label htmlFor={idAndForString} >{name}
+    <label style={{ display: "flex", justifyContent: 'space-between', width: 300, marginBottom: 5 }} htmlFor={idAndForString} >{name}
       <input type="text" value={value} id={idAndForString} onChange={(event) => handleChange(event, paramId)}/>
     </label>
   )
