@@ -27,7 +27,8 @@ interface IState {
 interface IInputProps {
   name: string;
   value: string;
-  idAndFor: number;
+  handleChange: (event: React.ChangeEvent<HTMLInputElement>, paramId: number) => void;
+  paramId: number;
 }
 
 const params: IParam[] = [
@@ -54,11 +55,11 @@ const model: IModel = {
   ]
 }
 
-const Input: FC<IInputProps> = ({ name, value, idAndFor }) => {
-  const idAndForString = idAndFor.toString();
+const Input: FC<IInputProps> = ({ name, value, handleChange, paramId }) => {
+  const idAndForString = paramId.toString();
   return (
     <label htmlFor={idAndForString} >{name}
-      <input type="text" value={value} id={idAndForString} />
+      <input type="text" value={value} id={idAndForString} onChange={(event) => handleChange(event, paramId)}/>
     </label>
   )
 }
@@ -69,6 +70,7 @@ class ParamEditor extends React.Component<IProps, IState> {
     this.state = {
       paramValues: props.model.paramValues
     }
+    this.handleChange = this.handleChange.bind(this);
   }
 
   public getModel(): IModel {
@@ -76,18 +78,28 @@ class ParamEditor extends React.Component<IProps, IState> {
   }
 
   private handleChange(event: React.ChangeEvent<HTMLInputElement>, paramId: number): void {
-    const params = this.state.paramValues.filter(param => param.paramId !== paramId);
-    this.setState({ paramValues: [ ...params, { "paramId": paramId, "value": event.target.value } ] })
+    const params = this.state.paramValues.filter(pv => pv.paramId !== paramId);
+    this.setState({ paramValues: [ ...params, { "paramId": paramId, "value": event.target.value } ] });
+    console.log(this.state.paramValues);
   }
 
   render() {
     return (
-      <div>
-        {params.map((param, index) => (
-          <Input key={param["id"]} name={param["name"]} value={model["paramValues"][index]["value"]} idAndFor={model["paramValues"][index]["paramId"]} />
-        ))}
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {this.state.paramValues.map((pv) => {
+          const name = this.props.params.find(param => param.id === pv.paramId)?.name;
+          return (
+            <Input
+              key={pv.paramId}
+              name={name ? name : ''}
+              value={pv.value}
+              handleChange={this.handleChange}
+              paramId={pv.paramId}
+            />
+          );
+        })}
       </div>
-    )
+    );
   }
 }
 
@@ -96,3 +108,5 @@ const App: FC = () => {
     <ParamEditor params={params} model={model}/>
   )
 }
+
+export default App;
