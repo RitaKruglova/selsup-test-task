@@ -4,11 +4,12 @@ import React, { FC } from "react";
 interface IParam {
   id: number;
   name: string;
+  type: "string" | "number";
 }
 
 interface IParamValue {
   paramId: number;
-  value: string;
+  value: string | number;
 }
   
 interface IModel {
@@ -26,7 +27,7 @@ interface IState {
 
 interface IInputProps {
   name: string;
-  value: string;
+  value: any;
   handleChange: (event: React.ChangeEvent<HTMLInputElement>, paramId: number) => void;
   paramId: number;
 }
@@ -34,11 +35,18 @@ interface IInputProps {
 const params: IParam[] = [
   {
     "id": 1,
-    "name": "Назначение"
+    "name": "Назначение",
+    "type": "string"
   },
   {
     "id": 2,
-    "name": "Длина"
+    "name": "Длина",
+    "type": "string"
+  },
+  {
+    "id": 3,
+    "name": "Ширина",
+    "type": "number"
   }
 ]
 
@@ -51,6 +59,10 @@ const model: IModel = {
     {
       "paramId": 2,
       "value": "макси"
+    },
+    {
+      "paramId": 3,
+      "value": "39"
     }
   ]
 }
@@ -74,13 +86,24 @@ class ParamEditor extends React.Component<IProps, IState> {
   }
 
   public getModel(): IModel {
-    return this.state;
+    return {
+      paramValues: this.state.paramValues.map((pv) => {
+        const param = this.props.params.find(param => param.id === pv.paramId)
+        if (param?.type === 'number') {
+          return {
+            ...pv,
+            value: Number(pv.value)
+          }
+        }
+        return pv
+      })
+    }
   }
 
   private handleChange(event: React.ChangeEvent<HTMLInputElement>, paramId: number): void {
     const params = this.state.paramValues.filter(pv => pv.paramId !== paramId);
     this.setState({ paramValues: [ ...params, { "paramId": paramId, "value": event.target.value } ] });
-    console.log(this.state.paramValues);
+    console.log(this.getModel());
   }
 
   render() {
